@@ -1,5 +1,7 @@
 # 𝗞𝗥𝗖𝗮𝗽𝗩𝗟𝗠: 𝗕𝗲𝗮𝗺-𝗚𝘂𝗶𝗱𝗲𝗱 𝗞𝗻𝗼𝘄𝗹𝗲𝗱𝗴𝗲 𝗥𝗲𝗽𝗹𝗮𝘆 𝗳𝗼𝗿 𝗞𝗻𝗼𝘄𝗹𝗲𝗱𝗴𝗲-𝗥𝗶𝗰𝗵 𝗜𝗺𝗮𝗴𝗲 𝗖𝗮𝗽𝘁𝗶𝗼𝗻𝗶𝗻𝗴 𝘂𝘀𝗶𝗻𝗴 𝗩𝗶𝘀𝗶𝗼𝗻-𝗟𝗮𝗻𝗴𝘂𝗮𝗴𝗲 𝗠𝗼𝗱𝗲𝗹
 
+Pattern Recognition 2026. 
+
 ![Alt text](output%20results.png)
 ![Alt text](output%20results2.png)
 
