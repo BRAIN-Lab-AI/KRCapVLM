@@ -16,11 +16,6 @@ These modifications help the model retain and express real-world knowledge, achi
 - **Supervisor:** Dr. Muzammil Behzad  
 - **Affiliations:** KFUPM and IAU
 
-<!--
-## Project Documents
-- **Presentation:** [Project Presentation](/presentation.pptx)
-- **Report:** [Project Report](/report.pdf)
--->
 
 ## Reference Paper  
 - Cheng et al., “Beyond generic: Enhancing image captioning with real-world knowledge using vision-language pre-training model”, *ACM MM 2023* [KnowCap paper](https://arxiv.org/abs/2308.01126)
