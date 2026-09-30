@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KRCapVLM | Knowledge-Rich Image Captioning</title>
+<meta name="description" content="KRCapVLM: Beam-guided knowledge replay for knowledge-rich image captioning using vision-language model.">
+<style>
+:root{
+  --bg:#e8eef7;--surface:#fff;--surface2:#f3f7fc;--ink:#13243c;
+  --muted:#60728a;--faint:#8293a8;--line:#d4dfec;
+  --blue:#246bc7;--teal:#0da6a2;--purple:#7357d9;--pink:#d45ca8;
+  --grad:linear-gradient(105deg,#246bc7,#0da6a2 52%,#7357d9);
+  --shadow:0 16px 40px rgba(25,48,82,.11);--radius:20px;--max:1120px
+}
+:root.dark{
+  --bg:#0a0f1b;--surface:#111a29;--surface2:#172236;--ink:#edf3fb;
+  --muted:#a8b6c9;--faint:#75879e;--line:#27364d;
+  --blue:#65a3f4;--teal:#35d2c4;--purple:#9b88f1;--pink:#e688c3;
+  --grad:linear-gradient(105deg,#65a3f4,#35d2c4 52%,#9b88f1);
+  --shadow:0 18px 45px rgba(0,0,0,.35)
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.62;background:
+radial-gradient(850px 520px at 3% 0,rgba(36,107,199,.15),transparent 62%),
+radial-gradient(850px 520px at 98% 0,rgba(13,166,162,.12),transparent 62%),var(--bg)}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:var(--max);margin:auto;padding:0 24px}
+.serif{font-family:Georgia,"Times New Roman",serif}
+h1,h2,h3{line-height:1.13}h2{font-size:2rem;margin:.15em 0 .4em;letter-spacing:-.025em}
+section{padding:56px 0}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;font-weight:850}
+.nav{position:sticky;top:12px;z-index:10;max-width:1100px;margin:12px auto 0;padding:12px 17px;border:1px solid var(--line);
+border-radius:20px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(15px);
+box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:850}.mark{width:35px;height:35px;border-radius:11px;background:var(--grad);color:#fff;display:grid;place-items:center;font-size:.76rem}
+.navlinks{display:flex;gap:22px}.navlinks a{color:var(--muted);font-size:.88rem;font-weight:750}
+.toggle{width:37px;height:37px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+@media(max-width:750px){.navlinks{display:none}}
+.hero{padding:58px 0 38px}.hero-center{text-align:center;max-width:960px;margin:auto}
+.wave{width:min(540px,100%);height:45px;display:block;margin:auto auto 16px}
+.wave path{fill:none;stroke:url(#g);stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.badge{display:inline-block;padding:6px 16px;border-radius:999px;background:var(--grad);color:#fff;font-size:.7rem;font-weight:850;letter-spacing:.14em}
+.title{font-size:clamp(3.7rem,10vw,7rem);line-height:.9;letter-spacing:-.06em;margin:.16em 0 .08em}
+.gradient{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.subtitle{font-size:clamp(1.05rem,2vw,1.34rem);font-weight:600;max-width:880px;margin:auto;line-height:1.42}
+.authors{margin:23px auto 3px;font-size:1.02rem}.authors b{font-weight:780}.authors sup{color:var(--blue)}
+.affil{color:var(--faint);font-size:.87rem;max-width:900px;margin:auto}
+.buttons{display:flex;justify-content:center;flex-wrap:wrap;gap:11px;margin-top:24px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font-weight:760;box-shadow:var(--shadow)}
+.btn:hover{text-decoration:none;transform:translateY(-1px)}.btn.primary{background:var(--grad);border:0;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.stat{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:21px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--grad)}
+.num{font:850 2.25rem Georgia,serif;color:var(--blue)}.stat:nth-child(2) .num{color:var(--teal)}.stat:nth-child(3) .num{color:var(--purple)}.stat:nth-child(4) .num{color:var(--pink)}
+.label{font-size:.84rem;color:var(--muted);margin-top:5px}
+.panel,.figure{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:var(--shadow)}
+.lead{font-size:1.06rem}.muted{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}}
+@media(max-width:470px){.stats{grid-template-columns:1fr}}
+.figure{padding:15px}.figure img{width:100%;height:auto;display:block;border-radius:12px;background:transparent}.caption{text-align:center;color:var(--muted);font-size:.84rem;padding:10px 4px 1px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:19px;padding:23px;box-shadow:var(--shadow);border-top:4px solid var(--blue)}
+.card:nth-child(2){border-top-color:var(--teal)}.card:nth-child(3){border-top-color:var(--purple)}
+.card h3{margin:.15em 0 .4em}.card p{margin:0;color:var(--muted);font-size:.92rem}
+.big{font:850 1.65rem Georgia,serif;color:var(--blue)}.card:nth-child(2) .big{color:var(--teal)}.card:nth-child(3) .big{color:var(--purple)}
+.table{overflow:auto;border:1px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}thead th{background:var(--surface2);color:var(--muted);font-size:.69rem;text-transform:uppercase;letter-spacing:.06em}
+tr:last-child td{border-bottom:0}.hl{background:color-mix(in srgb,var(--blue) 9%,var(--surface));font-weight:800}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+@media(max-width:720px){.compare{grid-template-columns:1fr}}
+.comparebox{background:var(--surface2);border:1px solid var(--line);border-radius:18px;padding:20px}
+.comparebox h3{margin-top:0}.arrow{color:var(--blue);font-weight:900}
+pre{overflow:auto;background:#0c1422;color:#eaf0f8;border-radius:16px;padding:20px;font-size:.8rem;line-height:1.55}
+footer{padding:45px 0 65px;text-align:center;color:var(--muted);font-size:.88rem}.footerlinks{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand"><div class="mark">KR</div><span>KRCapVLM</span></div>
+  <div class="navlinks">
+    <a href="#method">Method</a><a href="#datasets">Datasets</a><a href="#results">Results</a><a href="#qualitative">Examples</a><a href="#citation">Cite</a>
+  </div>
+  <button class="toggle" id="toggle">◐</button>
+</nav>
+
+<header class="hero">
+<div class="wrap">
+  <div class="hero-center">
+    <svg class="wave" viewBox="0 0 540 45" aria-hidden="true">
+      <defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#246bc7"/><stop offset=".52" stop-color="#0da6a2"/><stop offset="1" stop-color="#7357d9"/></linearGradient></defs>
+      <path d="M0 23H145l18-18 16 36 17-27 17 9h82l18-15 17 29 17-20h175"/>
+    </svg>
+    <span class="badge">Pattern Recognition · 2026 · Vol. 179</span>
+    <h1 class="title serif"><span class="gradient">KRCapVLM</span></h1>
+    <p class="subtitle serif">Beam-guided knowledge replay for knowledge-rich image captioning using vision-language model</p>
+    <p class="authors">
+      <b>Reem Aljunaid</b><sup>a,b</sup> · <b>Qasim Umer</b><sup>a</sup> · <b>Sajjad Mahmood</b><sup>a</sup> ·
+      <b>Mahmood Niazi</b><sup>a</sup> · <b>Muzammil Behzad</b><sup>a,c,*</sup>
+    </p>
+    <p class="affil">
+      <sup>a</sup> King Fahd University of Petroleum and Minerals, Dhahran, Saudi Arabia ·
+      <sup>b</sup> Imam Abdulrahman Bin Faisal University, Dammam, Saudi Arabia ·
+      <sup>c</sup> SDAIA-KFUPM Joint Research Center on Artificial Intelligence, Dhahran, Saudi Arabia
+    </p>
+    <div class="buttons">
+      <a class="btn primary" href="https://www.sciencedirect.com/science/article/pii/S0031320326005340" target="_blank">▣ Paper</a>
+      <a class="btn" href="https://github.com/BRAIN-Lab-AI/KRCapVLM" target="_blank">◉ Code</a>
+      <a class="btn" href="#citation">≡ Cite</a>
+    </div>
+  </div>
+</div>
+</header>
+
+<section style="padding-top:8px">
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="num">63.30%</div><div class="label">KnowCap recognition accuracy with +Beam</div></div>
+    <div class="stat"><div class="num">92.6</div><div class="label">KnowCap CIDEr with +Beam</div></div>
+    <div class="stat"><div class="num">57.69%</div><div class="label">Recognition accuracy on unseen categories</div></div>
+    <div class="stat"><div class="num">32,000</div><div class="label">Training samples in the combined setup</div></div>
+  </div>
+</div>
+</section>
+
+<section id="abstract"><div class="wrap">
+  <div class="panel">
+    <div class="eyebrow" style="color:var(--blue)">Abstract</div>
+    <p class="lead">
+      Generating informative and knowledge-rich image captions remains a challenge because existing captioning
+      models often produce generic descriptions lacking specificity and contextual depth. KRCapVLM is a
+      knowledge replay-based image captioning framework built upon a vision-language model. It incorporates
+      beam search decoding to encourage explicit knowledge expression, attention-based modules in the image
+      encoder to improve visual feature representation, and training schedulers to improve optimization
+      reliability and consistency of downstream performance.
+    </p>
+    <p class="muted">
+      On KnowCap, recognition accuracy improves from <b>50.40%</b> to <b>63.30%</b>, accompanied by a
+      <b>+2.3 CIDEr</b> increase. The paper also evaluates generalization to previously unseen knowledge
+      categories and reports stronger knowledge-aware captioning while maintaining robust generic captioning performance.
+    </p>
+  </div>
+</div></section>
+
+<section id="method"><div class="wrap">
+  <div class="eyebrow" style="color:var(--teal)">Method</div>
+  <h2 class="serif">A knowledge-replay framework with three targeted improvements</h2>
+  <figure class="figure" style="margin-top:20px">
+    <img src="assets/figure1_framework.png" alt="KRCapVLM framework from Figure 1 of the paper">
+    <div class="caption"><b>Figure 1.</b> KRCapVLM framework. Knowledge replay is performed in parallel with downstream task fine-tuning to reinforce the model's knowledge of concepts.</div>
+  </figure>
+
+  <div class="grid3" style="margin-top:20px">
+    <div class="card"><div class="big">01</div><h3>Beam Search</h3><p>Beam search is used to generate higher-quality pseudo-captions for replay samples, allowing multiple caption possibilities to be explored rather than relying on greedy decoding.</p></div>
+    <div class="card"><div class="big">02</div><h3>Patch Self-Attention</h3><p>An additional self-attention layer models interactions among image patches before visual features are fused with text.</p></div>
+    <div class="card"><div class="big">03</div><h3>Learning-Rate Scheduler</h3><p>Cosine annealing regulates optimization when the training objective combines captioning, knowledge prediction, and distillation losses.</p></div>
+  </div>
+
+  <figure class="figure" style="margin-top:22px">
+    <img src="assets/figure2_architecture.png" alt="Custom OFA-Large model with Patch Self-Attention from Figure 2">
+    <div class="caption"><b>Figure 2.</b> Custom OFA-Large model with Patch Self-Attention for image captioning.</div>
+  </figure>
+
+  <div class="panel" style="margin-top:20px">
+    <h3>Training objective</h3>
+    <p class="muted">
+      Standard COCO image-caption samples use cross-entropy supervision. Replay samples from the CC12M
+      subset use beam-generated pseudo-captions and jointly activate knowledge prediction and knowledge
+      distillation objectives. The total loss is:
+    </p>
+    <p style="text-align:center;font-size:1.15rem;font-weight:800">L<sub>total</sub> = L<sub>ce</sub> + λ<sub>k</sub>L<sub>kpred</sub> + λ<sub>d</sub>L<sub>distill</sub></p>
+  </div>
+</div></section>
+
+<section id="datasets"><div class="wrap">
+  <div class="eyebrow" style="color:var(--purple)">Datasets</div>
+  <h2 class="serif">Training and evaluation data</h2>
+  <div class="grid3" style="margin-top:20px">
+    <div class="card"><div class="big">MS-COCO</div><h3>Generic captioning</h3><p>Karpathy split with 113,287 training images, 5,000 validation images, and 5,000 test images, each with five human-written captions.</p></div>
+    <div class="card"><div class="big">CC12M</div><h3>Replay subset</h3><p>Over 20,000 image-text pairs filtered using 122 predefined keywords. The experiments randomly select 5,000 image-keyword pairs for replay.</p></div>
+    <div class="card"><div class="big">KnowCap</div><h3>Knowledge benchmark</h3><p>1,424 image-caption pairs spanning 240 knowledge categories; 424 validation and 1,000 test samples. The unseen subset contains 520 samples across 120 unseen categories.</p></div>
+  </div>
+  <div class="panel" style="margin-top:20px">
+    <h3>Training split used in the experiments</h3>
+    <p class="muted">27,000 COCO image-caption pairs + 5,000 CC12M image-keyword pairs = <b>32,000 combined training samples</b>.</p>
+  </div>
+</div></section>
+
+<section id="results"><div class="wrap">
+  <div class="eyebrow" style="color:var(--blue)">Results</div>
+  <h2 class="serif">KnowCap and COCO performance</h2>
+  <p class="muted">Values below are transcribed from Table 1 of the published paper.</p>
+  <div class="table">
+  <table>
+    <thead><tr><th>Model</th><th>KnowCap B1</th><th>B4</th><th>M</th><th>R</th><th>CIDEr</th><th>Rec.</th><th>COCO CIDEr</th></tr></thead>
+    <tbody>
+      <tr><td>OFA zero-shot</td><td>32.8</td><td>9.4</td><td>11.5</td><td>24.6</td><td>39.2</td><td>39.80%</td><td>22.1</td></tr>
+      <tr><td>OFA-Finetuned</td><td>35.6</td><td>10.8</td><td>12.1</td><td>26.6</td><td>41.7</td><td>38.50%</td><td>134.6</td></tr>
+      <tr><td>+ K-Replay</td><td>58.8</td><td>22.7</td><td>20.2</td><td>43.0</td><td>90.3</td><td>50.40%</td><td>130.6</td></tr>
+      <tr><td>+ Scheduler</td><td>58.6</td><td>23.9</td><td>20.9</td><td>44.1</td><td>92.6</td><td>54.20%</td><td>130.4</td></tr>
+      <tr class="hl"><td>+ Beam</td><td>57.7</td><td>21.9</td><td>20.4</td><td>42.5</td><td>92.6</td><td>63.30%</td><td>130.8</td></tr>
+      <tr><td>+ Attention</td><td>58.1</td><td>22.1</td><td>20.5</td><td>43.2</td><td>92.0</td><td>58.90%</td><td>129.4</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="grid2" style="margin-top:22px">
+    <div class="table"><table>
+      <thead><tr><th colspan="4">Knowledge token statistics</th></tr><tr><th>Model</th><th>Avg. tokens</th><th>Captions ≥1 token</th><th>Max</th></tr></thead>
+      <tbody>
+        <tr><td>+ K-Replay</td><td>0.154</td><td>15.4%</td><td>1</td></tr>
+        <tr><td>+ Scheduler</td><td>0.171</td><td>16.9%</td><td>2</td></tr>
+        <tr class="hl"><td>+ Beam</td><td>0.223</td><td>22.1%</td><td>2</td></tr>
+        <tr><td>+ Attention</td><td>0.171</td><td>16.9%</td><td>2</td></tr>
+      </tbody>
+    </table></div>
+    <div class="panel">
+      <div class="eyebrow" style="color:var(--pink)">Key observation</div>
+      <h3>Beam search increases explicit knowledge expression</h3>
+      <p class="muted">The +Beam variant produces the highest average number of explicit knowledge tokens per image and the largest proportion of captions containing at least one knowledge token.</p>
+      <p class="muted">The paper notes that richer entity-specific phrasing can slightly reduce CIDEr because CIDEr rewards n-gram consensus with reference captions.</p>
+    </div>
+  </div>
+
+  <h2 class="serif" style="margin-top:50px">Generalization to unseen categories</h2>
+  <div class="table">
+  <table>
+    <thead><tr><th>Model</th><th>B1</th><th>B4</th><th>M</th><th>R</th><th>CIDEr</th><th>Rec.</th></tr></thead>
+    <tbody>
+      <tr><td>OFA zero-shot</td><td>31.7</td><td>9.8</td><td>11.3</td><td>24.1</td><td>36.9</td><td>39.20%</td></tr>
+      <tr><td>OFA-Finetuned</td><td>35.0</td><td>11.5</td><td>12.3</td><td>26.5</td><td>42.0</td><td>39.00%</td></tr>
+      <tr><td>+ K-Replay</td><td>57.9</td><td>23.2</td><td>19.6</td><td>42.6</td><td>83.9</td><td>45.80%</td></tr>
+      <tr><td>+ Scheduler</td><td>58.7</td><td>24.3</td><td>20.8</td><td>44.2</td><td>91.0</td><td>55.60%</td></tr>
+      <tr class="hl"><td>+ Beam</td><td>56.2</td><td>21.7</td><td>19.5</td><td>41.8</td><td>82.6</td><td>57.69%</td></tr>
+      <tr><td>+ Attention</td><td>57.5</td><td>22.5</td><td>20.1</td><td>43.0</td><td>84.4</td><td>55.00%</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2 class="serif" style="margin-top:50px">Comparison with state-of-the-art forgetting methods</h2>
+  <div class="table">
+  <table>
+    <thead><tr><th>Model</th><th>B1</th><th>B4</th><th>M</th><th>R</th><th>CIDEr</th><th>Rec.</th></tr></thead>
+    <tbody>
+      <tr><td>EWC</td><td>56.9</td><td>21.8</td><td>19.1</td><td>42.0</td><td>73.6</td><td>30.40%</td></tr>
+      <tr><td>Recall and Learn</td><td>53.7</td><td>20.1</td><td>18.1</td><td>39.3</td><td>70.6</td><td>37.20%</td></tr>
+      <tr><td>Child-Tuning</td><td>55.8</td><td>21.7</td><td>18.8</td><td>41.5</td><td>74.7</td><td>33.80%</td></tr>
+      <tr><td>Adapter</td><td>54.4</td><td>20.5</td><td>17.6</td><td>40.1</td><td>63.7</td><td>30.40%</td></tr>
+      <tr><td>Vanilla Fine-tuning</td><td>35.6</td><td>10.8</td><td>12.1</td><td>26.6</td><td>41.7</td><td>38.50%</td></tr>
+      <tr><td>K-Replay</td><td>58.8</td><td>22.7</td><td>20.2</td><td>43.0</td><td>90.3</td><td>50.40%</td></tr>
+      <tr><td>+ Scheduler</td><td>58.6</td><td>23.9</td><td>20.9</td><td>44.1</td><td>92.6</td><td>54.20%</td></tr>
+      <tr class="hl"><td>+ Beam</td><td>57.7</td><td>21.9</td><td>20.4</td><td>42.5</td><td>92.6</td><td>63.30%</td></tr>
+      <tr><td>+ Attention</td><td>58.1</td><td>22.1</td><td>20.5</td><td>43.2</td><td>92.0</td><td>58.90%</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div></section>
+
+<section id="qualitative"><div class="wrap">
+  <div class="eyebrow" style="color:var(--pink)">Qualitative Results</div>
+  <h2 class="serif">More specific, knowledge-rich captions</h2>
+  <p class="muted">Figure 3 from the paper compares K-Replay and KRCapVLM across diverse images. Knowledge concepts are highlighted in green in the original figure.</p>
+  <figure class="figure" style="margin-top:20px">
+    <img src="assets/figure3_qualitative.png" alt="Qualitative comparison of K-Replay and KRCapVLM captions">
+    <div class="caption"><b>Figure 3.</b> Comparison of captions generated by K-Replay and KRCapVLM across diverse image examples.</div>
+  </figure>
+  <div class="compare">
+    <div class="comparebox"><h3>K-Replay</h3><p class="muted">Captions can remain generic, such as “a group of people standing in front of a tower.”</p></div>
+    <div class="comparebox"><h3>KRCapVLM</h3><p class="muted">Captions can express more specific real-world concepts, such as “Big Ben,” “Tesla,” “Shibuya,” “Starbucks,” “Hollywood,” “Walmart,” and “Space Needle.”</p></div>
+  </div>
+</div></section>
+
+<section id="setup"><div class="wrap">
+  <div class="eyebrow" style="color:var(--teal)">Experiment Setup</div>
+  <h2 class="serif">Implementation details</h2>
+  <div class="grid3" style="margin-top:20px">
+    <div class="card"><div class="big">OFA-Large</div><h3>Vision-language model</h3><p>Official PyTorch OFA-Large checkpoint, with the proposed patch self-attention module.</p></div>
+    <div class="card"><div class="big">A100</div><h3>Hardware</h3><p>Experiments conducted using an NVIDIA A100 GPU with batch size 8 for 10 epochs.</p></div>
+    <div class="card"><div class="big">k = 5</div><h3>Beam size</h3><p>The paper adopts beam size 5 as a balance between recognition accuracy and computational efficiency.</p></div>
+  </div>
+  <div class="panel" style="margin-top:20px">
+    <p class="muted"><b>Optimization:</b> learning rate 7 × 10<sup>−6</sup>, label smoothing 0.1, distillation temperature T = 16, λ<sub>k</sub> = 1.0, λ<sub>d</sub> = 1.0.</p>
+    <p class="muted"><b>Beam-search overhead:</b> average per-step training time increased from 5.53 s with greedy decoding to 6.47 s with k = 5, a 17.1% increase. This overhead occurs during pseudo-caption generation for replay samples rather than standard downstream inference.</p>
+  </div>
+</div></section>
+
+<section id="citation"><div class="wrap">
+  <div class="eyebrow" style="color:var(--purple)">Citation</div>
+  <h2 class="serif">Cite KRCapVLM</h2>
+  <div class="panel">
+<pre id="bib">@article{Aljunaid2026KRCapVLM,
+  title   = {KRCapVLM: Beam-guided knowledge replay for knowledge-rich
+             image captioning using vision-language model},
+  author  = {Aljunaid, Reem and Umer, Qasim and Mahmood, Sajjad
+             and Niazi, Mahmood and Behzad, Muzammil},
+  journal = {Pattern Recognition},
+  volume  = {179},
+  pages   = {113568},
+  year    = {2026},
+  doi     = {10.1016/j.patcog.2026.113568}
+}</pre>
+    <button class="btn" id="copy">Copy BibTeX</button>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="footerlinks">
+    <a href="https://www.sciencedirect.com/science/article/pii/S0031320326005340" target="_blank">Paper</a>
+    <a href="https://github.com/BRAIN-Lab-AI/KRCapVLM" target="_blank">GitHub</a>
+  </div>
+  KRCapVLM · BRAIN Lab · King Fahd University of Petroleum &amp; Minerals
+</div></footer>
+
+<script>
+const root=document.documentElement;
+const saved=localStorage.getItem("krcap-theme");
+if(saved==="dark")root.classList.add("dark");
+document.getElementById("toggle").onclick=()=>{
+  root.classList.toggle("dark");
+  localStorage.setItem("krcap-theme",root.classList.contains("dark")?"dark":"light");
+};
+document.getElementById("copy").onclick=async()=>{
+  await navigator.clipboard.writeText(document.getElementById("bib").innerText);
+  const b=document.getElementById("copy");b.textContent="Copied!";
+  setTimeout(()=>b.textContent="Copy BibTeX",1400);
+};
+</script>
+</body>
+</html>
