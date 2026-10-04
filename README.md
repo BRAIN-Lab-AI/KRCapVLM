@@ -1,9 +1,26 @@
-# 𝗞𝗥𝗖𝗮𝗽𝗩𝗟𝗠: 𝗕𝗲𝗮𝗺-𝗚𝘂𝗶𝗱𝗲𝗱 𝗞𝗻𝗼𝘄𝗹𝗲𝗱𝗴𝗲 𝗥𝗲𝗽𝗹𝗮𝘆 𝗳𝗼𝗿 𝗞𝗻𝗼𝘄𝗹𝗲𝗱𝗴𝗲-𝗥𝗶𝗰𝗵 𝗜𝗺𝗮𝗴𝗲 𝗖𝗮𝗽𝘁𝗶𝗼𝗻𝗶𝗻𝗴 𝘂𝘀𝗶𝗻𝗴 𝗩𝗶𝘀𝗶𝗼𝗻-𝗟𝗮𝗻𝗴𝘂𝗮𝗴𝗲 𝗠𝗼𝗱𝗲𝗹
+# KRCapVLM: Beam-Guided Knowledge Replay for Knowledge-Rich Image Captioning using Vision-Language Model
 
-Pattern Recognition 2026. 
+<p align="center">
+  <a href="PAPER_LINK">Paper</a> &nbsp;|&nbsp;
+  <a href="https://brain-lab-ai.github.io/KRCapVLM/">Project Page</a> &nbsp;|&nbsp;
+  <a href="#get-started">Get Started</a> &nbsp;|&nbsp;
+  <a href="#results">Results</a> &nbsp;|&nbsp;
+  <a href="#citation">Citation</a>
+</p>
 
-![Alt text](output%20results.png)
-![Alt text](output%20results2.png)
+<p align="center">
+  <a href="https://github.com/BRAIN-Lab-AI/KRCapVLM">
+    <img src="https://img.shields.io/badge/Code-GitHub-181717?logo=github&logoColor=white"/>
+  </a>
+  <a href="https://brain-lab-ai.github.io/KRCapVLM/">
+    <img src="https://img.shields.io/badge/Project-Page-1560bd?logo=githubpages&logoColor=white"/>
+  </a>
+</p>
+
+<p align="center">
+  <b>KRCapVLM</b> is a beam-guided knowledge replay framework for
+  knowledge-rich image captioning using vision-language models.
+</p>
 
 ## Introduction
 Enhanced K-Replay is an advanced deep learning model that addresses the challenge of generating accurate and knowledge-rich image captions. It enhances the K-Replay framework by integrating:
