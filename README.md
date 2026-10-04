@@ -25,6 +25,14 @@
   knowledge-rich image captioning using vision-language models.
 </p>
 
+<p align="center">
+  <img src="output%20results.png" width="100%" alt="KRCapVLM results"/>
+</p>
+
+<p align="center">
+  <img src="output%20results2.png" width="100%" alt="KRCapVLM results"/>
+</p>
+
 ## Introduction
 Enhanced K-Replay is an advanced deep learning model that addresses the challenge of generating accurate and knowledge-rich image captions. It enhances the K-Replay framework by integrating:
 - **Beam search decoding** for generating diverse and accurate pseudo-captions,
