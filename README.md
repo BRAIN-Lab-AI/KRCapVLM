@@ -1,4 +1,3 @@
-# KRCapVLM: Beam-Guided Knowledge Replay for Knowledge-Rich Image Captioning using Vision-Language Model
 <p align="center">
   <img src="assets/banner.png" width="100%" alt="KRCapVLM: Beam-Guided Knowledge Replay for Knowledge-Rich Image Captioning using Vision-Language Model"/>
 </p>
